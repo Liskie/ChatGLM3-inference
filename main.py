@@ -1,13 +1,32 @@
+from typing import Union, Tuple, Any
+
+from torch.nn import Module
 from transformers import AutoTokenizer, AutoModel
 
+from utils import load_model_on_gpus
 
-tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm3-6b", trust_remote_code=True)
-model = AutoModel.from_pretrained("THUDM/chatglm3-6b", trust_remote_code=True, device='cuda')
-model = model.eval()
+
+def load_model(model_path: str = 'THUDM/chatglm3-6b', num_gpus: int = 1) -> tuple[Any, Module]:
+    tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+    match num_gpus:
+        case 1:
+            model = AutoModel.from_pretrained(model_path, trust_remote_code=True, device='cuda')
+        case _ if num_gpus >= 2:
+            model = load_model_on_gpus("THUDM/chatglm3-6b", num_gpus=2)
+        case _:
+            raise ValueError("num_gpus must be a positive integer!")
+    return tokenizer, model.eval()
+
 
 if __name__ == '__main__':
-    response, history = model.chat(tokenizer, "你好", history=[])
+    tokenizer, model = load_model(num_gpus=2)
+
+    # If you only need on turn of conversation, you can use the following code:
+    response, _ = model.chat(tokenizer, "你好", history=[])
     print(response)
 
+    # If you need multiple turns of conversation, you can use the following code:
+    response, history = model.chat(tokenizer, "你好", history=[])
+    print(response)
     response, history = model.chat(tokenizer, "晚上睡不着应该怎么办", history=history)
     print(response)
