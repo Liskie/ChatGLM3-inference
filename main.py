@@ -1,4 +1,4 @@
-from typing import Union, Tuple, Any
+from typing import Any
 
 from torch.nn import Module
 from transformers import AutoTokenizer, AutoModel
@@ -12,7 +12,7 @@ def load_model(model_path: str = 'THUDM/chatglm3-6b', num_gpus: int = 1) -> tupl
         case 1:
             model = AutoModel.from_pretrained(model_path, trust_remote_code=True, device='cuda')
         case _ if num_gpus >= 2:
-            model = load_model_on_gpus("THUDM/chatglm3-6b", num_gpus=2)
+            model = load_model_on_gpus("THUDM/chatglm3-6b", num_gpus=num_gpus)
         case _:
             raise ValueError("num_gpus must be a positive integer!")
     return tokenizer, model.eval()
