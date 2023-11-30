@@ -19,7 +19,7 @@ def load_model(model_path: str = 'THUDM/chatglm3-6b', num_gpus: int = 1) -> tupl
 
 
 if __name__ == '__main__':
-    tokenizer, model = load_model(num_gpus=2)
+    tokenizer, model = load_model(model_path='/data/private/wyj2021/models/chatglm3-6b', num_gpus=2)
 
     # If you only need on turn of conversation, you can use the following code:
     response, _ = model.chat(tokenizer, "你好", history=[])
